@@ -1,1 +1,1 @@
-# series-nodejs-vuejs
+# Registro de Series

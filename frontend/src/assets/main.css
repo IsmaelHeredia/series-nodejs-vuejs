@@ -1,0 +1,297 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+}
+
+.ingreso {
+  margin-left: 20%;
+  margin-right: 20%;
+  margin-top: 8%;
+  margin-bottom: 8%;
+}
+
+.cuenta {
+  margin-left: 20%;
+  margin-right: 20%;
+  margin-top: 3%;
+  margin-bottom: 8%;
+}
+
+.form-serie {
+  margin-left: 20%;
+  margin-right: 20%;
+  margin-top: 3%;
+  margin-bottom: 8%;
+}
+
+.contenedor {
+  margin-top: 8%;
+  margin-left: 20%;
+  margin-right: 20%;
+}
+
+.center {
+  text-align: center;
+}
+
+.imagen {
+  height: 100px;
+  width: 100px;
+}
+
+.datos-tabla {
+  margin-left: 20%;
+  margin-right: 20%;
+}
+
+.navbar-right {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+}
+
+th {
+  font-weight: 900 !important;
+}
+
+.center-div {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.botones-theme {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  margin-bottom: 23px;
+  margin-right: 10px;
+}
+
+.toast {
+  text-align: center;
+}
+
+.boton-agregar-genero {
+  margin-left: 10px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.boton-agregar-serie {
+  margin-left: 10px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.divider-generos {
+  margin-top: 10px;
+  margin-bottom: 30px;
+}
+
+.divider-series {
+  margin-top: 10px;
+  margin-bottom: 30px;
+}
+
+.boton-icono-tabla {
+  margin-right: 10px;
+}
+
+.boton-pequeño {
+  width: 170px;
+}
+
+.boton-medio {
+  width: 200px;
+}
+
+.boton-largo {
+  width: 250px;
+}
+
+.modal-text {
+  font-size: 25px;
+}
+
+.modal-actions {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.boton-filtrar {
+  margin-bottom: 15px;
+  margin-right: 15px;
+  width: 200px;
+}
+
+.paginas-generos {
+  padding: 20px 0;
+  text-align: center;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.left-generos {
+  padding-left: 20%;
+  margin-top: 20px;
+}
+
+.right-generos {
+  padding-right: 20%;
+}
+
+.filtro-nombre {
+  padding-left: 100px;
+}
+
+.paginas-series {
+  padding: 20px 0;
+  text-align: center;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.left-series {
+  padding-left: 20%;
+  margin-top: 20px;
+}
+
+.right-series {
+  padding-right: 20%;
+}
+
+.tabla-generos {
+  text-align: center;
+}
+
+.tabla-series {
+  text-align: center;
+}
+
+.card-title {
+  font-size: 35px !important;
+}
+
+.boton-volver {
+  margin-left: 10px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  width: 200px;
+}
+
+.divider-form-serie {
+  margin-top: 10px;
+  margin-bottom: 30px;
+}
+
+.form-input-calificacion {
+  padding-bottom: 30px;
+  padding-left: 10px;
+}
+
+.text-calificacion {
+  padding-right: 10px;
+}
+
+.rating-form {
+  margin-top: 3px;
+}
+
+.imagen-preview {
+  height: 200px;
+  width: 200px;
+  margin-bottom: -80px;
+}
+
+.links-form {
+  padding-top: 20px;
+}
+
+.listado-registros {
+  margin-top: 20px;
+}
+
+.divider-home {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.preview-titulo {
+  padding-top: 20px;
+  padding-bottom: 10px;
+}
+
+.preview-links {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.preview-progreso {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.preview-calificacion {
+  padding-top: 10px;
+  padding-bottom: 20px;
+}
+
+.preview-estado {
+  padding-top: 10px;
+  padding-bottom: 20px;
+}
+
+.preview-generos {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.text-generos {
+  padding-right: 10px;
+}
+
+.chip-genero {
+  margin-right: 5px;
+  margin-top: 3px;
+}
+
+.flash:hover {
+  opacity: 1;
+  -webkit-animation: flash 1.5s;
+  animation: flash 1.5s;
+}
+
+@-webkit-keyframes flash {
+  0% {
+    opacity: .6;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes flash {
+  0% {
+    opacity: .6;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
