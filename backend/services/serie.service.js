@@ -113,12 +113,13 @@ module.exports = {
             const serieGuardado = await Serie.create(
                 {
                     nombre: data.nombre,
+                    //imagen: data.imagen,
                     links: data.links,
                     ultima_temporada: data.ultima_temporada,
                     ultimo_capitulo: data.ultimo_capitulo,
                     calificacion: data.calificacion,
                     estado_id: data.estado_id,
-                    genero: data.generos
+                    generos: data.generos
                 },
                 {
                     include: {
@@ -225,7 +226,7 @@ module.exports = {
 
                 const image = datos.imagen;
 
-                const upload_folder = path.join(__dirname, '../../uploads');
+                const upload_folder = path.join(__dirname, '../uploads');
 
                 if (image != null && image != "") {
                     fs.unlinkSync(upload_folder + "/" + image);
@@ -274,7 +275,7 @@ module.exports = {
 
                 const image = datos_serie.imagen;
 
-                const upload_folder = path.join(__dirname, '../../uploads');
+                const upload_folder = path.join(__dirname, '../uploads');
 
                 if (image != null && image != "") {
                     fs.unlinkSync(upload_folder + "/" + image);

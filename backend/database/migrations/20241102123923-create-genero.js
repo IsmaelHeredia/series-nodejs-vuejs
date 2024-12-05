@@ -14,13 +14,15 @@ module.exports = {
         unique: true
       },
       created_at: {
+        type: Sequelize.DATE,
         allowNull: false,
-        type: Sequelize.DATE
+        defaultValue: Sequelize.NOW,
       },
       updated_at: {
+        type: Sequelize.DATE,
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        defaultValue: Sequelize.NOW,
+      },
     });
   },
   async down(queryInterface, Sequelize) {

@@ -58,8 +58,8 @@ import { filterSeriesStore } from '@/stores/filterSeries';
       </v-col>
     </v-row>
 
-    <div class="datos-tabla">
-      <v-table height="300px" fixed-header class="tabla-series">
+    <div class="datos-tabla-series">
+      <v-table fixed-header class="tabla-series">
         <thead>
           <tr>
             <th class="text-center">
@@ -91,12 +91,12 @@ import { filterSeriesStore } from '@/stores/filterSeries';
             <td>
               <img class="imagen" :src="images_url + '/' + serie.imagen" />
             </td>
-            <td>{{ serie.ultima_temporada + ' - ' + serie.ultimo_capitulo }}</td>
+            <td>{{ 'T' + serie.ultima_temporada + ' - C' + serie.ultimo_capitulo }}</td>
             <td>
               <v-rating hover readonly :length="5" :size="32" :model-value="serie.calificacion"
                 active-color="primary" />
             </td>
-            <td>{{ serie.estado.nombre }}</td>
+            <td><b :class=serie.estado.color>{{ serie.estado.nombre }}</b></td>
             <td>
               <v-chip v-for="genero_chip in serie.generos" :key="genero_chip.id" class="chip-genero">
                 {{ genero_chip.nombre }}
@@ -138,10 +138,10 @@ import { filterSeriesStore } from '@/stores/filterSeries';
       </div>
     </div>
 
-    <v-dialog v-model="dialog_delete" max-width="600">
+    <v-dialog v-model="dialog_delete" max-width="800">
 
       <v-card>
-        <v-card-title class="headline black text-center" primary-title>
+        <v-card-title class="headline black text-center card-title" primary-title>
           Confirmación de eliminación
         </v-card-title>
 
@@ -259,7 +259,7 @@ export default {
 
       const filtrarGeneros = isProxy(this.generos_seleccionados) ? toRaw(this.generos_seleccionados) : this.generos_seleccionados;
 
-      serieService.listar(20, pagina, this.buscarNombre, filtrarGeneros, this.estado_id)
+      serieService.listar(24, pagina, this.buscarNombre, filtrarGeneros, this.estado_id)
         .then(response => {
 
           var data = response.data;

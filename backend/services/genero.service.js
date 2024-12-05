@@ -9,7 +9,11 @@ require("dotenv").config();
 module.exports = {
 
     async list() {
-        const resultado = await Genero.findAll({});
+        const resultado = await Genero.findAll({
+            order: [
+                ['nombre', 'ASC'],
+            ],
+        });
         return [resultado, 'Los géneros se listaron correctamente', 1];
     },
     async filter(data) {
@@ -29,7 +33,9 @@ module.exports = {
                 },
                 offset: offset,
                 limit: limite,
-                order: [["updated_at", "DESC"]],
+                order: [
+                    ['nombre', 'ASC']
+                ],
             });
 
             const generos = listaGeneros.rows;

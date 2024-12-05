@@ -8,7 +8,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   estado.init({
-    nombre: DataTypes.STRING
+    nombre: DataTypes.STRING,
+    color: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'estado',

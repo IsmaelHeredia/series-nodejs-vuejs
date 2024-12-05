@@ -40,8 +40,8 @@ const changeTheme = () => {
 
         <v-menu>
           <template v-slot:activator="{ props }">
-            <v-btn v-bind="props">
-              <v-icon :icon="mdiAccountCircle" /> {{ username }}
+            <v-btn class="text-none" v-bind="props">
+              <v-icon :icon="mdiAccountCircle" class="icono-boton" /> {{ username }}
             </v-btn>
           </template>
           <v-list>

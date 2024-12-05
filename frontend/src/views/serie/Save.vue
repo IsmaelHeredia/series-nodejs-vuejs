@@ -75,7 +75,7 @@ import router from "@/router";
           </v-card-text>
           <v-card-actions class="pa-5 center-div">
             <v-btn variant="elevated" type="submit" color="primary" class="boton-largo" :disabled=isLoading><v-icon
-                :icon="mdiFloppy" />
+                :icon="mdiFloppy" class="icono-boton" />
               Guardar</v-btn>
           </v-card-actions>
         </v-card>

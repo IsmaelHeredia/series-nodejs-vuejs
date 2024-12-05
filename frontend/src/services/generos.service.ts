@@ -10,7 +10,7 @@ const token = sessionStorage.getItem(session_name);
 
 var config = {};
 
-if (token != "") {
+if (token != null && token != "") {
     config = {
         headers: { Authorization: `Bearer ${token}` }
     };

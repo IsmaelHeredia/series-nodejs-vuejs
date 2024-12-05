@@ -39,7 +39,7 @@ import { filterGenerosStore } from '@/stores/filterGeneros';
     </v-row>
 
     <div class="datos-tabla">
-      <v-table height="300px" fixed-header class="tabla-generos">
+      <v-table fixed-header class="tabla-generos">
         <thead>
           <tr>
             <th class="text-center">
@@ -117,7 +117,7 @@ import { filterGenerosStore } from '@/stores/filterGeneros';
 
     </v-dialog>
 
-    <v-dialog v-model="dialog_delete" max-width="600">
+    <v-dialog v-model="dialog_delete" max-width="800">
 
       <v-card>
         <v-card-title class="headline black text-center card-title" primary-title>

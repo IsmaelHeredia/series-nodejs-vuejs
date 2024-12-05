@@ -59,7 +59,7 @@ import { filterSeriesStore } from '@/stores/filterSeries';
         <div v-if="series.length">
           <v-row class="pa-2">
             <v-col v-for="(serie) in series" :key="serie.id && serie.nombre" class="d-flex child-flex" cols="3">
-              <v-img class="align-end flash" :src="images_url + '/' + serie.imagen" cover height="250px"
+              <v-img class="align-end flash" :src="images_url + '/' + serie.imagen" cover aspect-ratio="1" height="340"
                 @click="abrirModalPreview(serie.id)" v-tooltip:top="serie.nombre" />
             </v-col>
           </v-row>
@@ -123,7 +123,7 @@ import { filterSeriesStore } from '@/stores/filterSeries';
               active-color="primary" />
           </v-row>
 
-          <h3 class="center preview-estado">Estado : {{ estado.nombre }}</h3>
+          <h3 class="center preview-estado">Estado : <b :class=estado.color>{{ estado.nombre }}</b></h3>
 
 
           <v-row dense class="center-div preview-generos">
@@ -251,7 +251,7 @@ export default {
 
       const filtrarGeneros = isProxy(this.generos_seleccionados) ? toRaw(this.generos_seleccionados) : this.generos_seleccionados;
 
-      serieService.listar(10, pagina, this.buscarNombre, filtrarGeneros, this.estado_id)
+      serieService.listar(24, pagina, this.buscarNombre, filtrarGeneros, this.estado_id)
         .then(response => {
 
           var data = response.data;

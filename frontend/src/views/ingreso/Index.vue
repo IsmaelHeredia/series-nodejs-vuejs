@@ -28,7 +28,7 @@ import axios from "axios";
           </v-card-text>
           <v-card-actions class="pa-5 center-div">
             <v-btn variant="elevated" type="submit" color="primary" class="boton-pequeño" :disabled=isLoading><v-icon
-                :icon="mdiLogin" />
+                :icon="mdiLogin" class="icono-boton" />
               Ingresar</v-btn>
           </v-card-actions>
         </v-card>

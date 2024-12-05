@@ -17,6 +17,16 @@ interface FormCuenta {
 }
 
 const backend_url = import.meta.env.VITE_API_URL;
+const session_name = import.meta.env.VITE_SESSION_NAME;
+const token = sessionStorage.getItem(session_name);
+
+var config = {};
+
+if (token != null && token != "") {
+    config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+}
 
 class UsuarioDataService {
 
@@ -51,7 +61,7 @@ class UsuarioDataService {
         };
 
         return axios
-            .post(backend_url + "/cuenta", parametros);
+            .post(backend_url + "/cuenta", parametros, config);
     };
 
 }
