@@ -1,6 +1,146 @@
-<script setup lang="ts">
+<template>
+  <v-btn variant="elevated" type="submit" color="primary" class="boton-largo boton-agregar-serie"
+    :to="{ name: 'guardarSerie' }"><v-icon>mdi-plus</v-icon>
+    Agregar serie</v-btn>
 
-import LayoutAdmin from "@/layouts/LayoutAdmin.vue";
+  <v-divider class="divider-series"></v-divider>
+
+  <v-row class="center-div">
+    <v-col cols="3">
+      <v-text-field v-model="buscarNombre" label="Ingrese nombre" class="filtro-nombre" />
+    </v-col>
+    <v-col cols="3">
+      <v-autocomplete clearable chips label="Géneros" v-model="generos" :items="generosLista" item-title="nombre"
+        item-value="id" multiple>
+        <template v-slot:chip="{ props, item, index }">
+          <v-chip v-if="generos.length <= 3" v-bind="props" small>
+            {{ item.title }}
+          </v-chip>
+          <span v-if="index === 1 && generos.length > 3">
+            + 3 géneros seleccionados
+          </span>
+        </template>
+      </v-autocomplete>
+    </v-col>
+    <v-col cols="2">
+      <v-select label="Estado" :items="estados" item-title='nombre' item-value='id' v-model="estado_id"></v-select>
+    </v-col>
+    <v-col cols="4" style="display: inline-block;">
+      <v-btn variant="elevated" type="submit" color="primary" class="boton-filtrar"
+        @click="filtrarSeries"><v-icon>mdi-magnify</v-icon>
+        Filtrar</v-btn>
+      <v-btn variant="elevated" type="submit" color="primary" class="boton-filtrar"
+        @click="borrarFiltroSeries"><v-icon>mdi-close</v-icon>
+        Borrar</v-btn>
+    </v-col>
+  </v-row>
+
+  <div class="datos-tabla-series">
+    <v-table fixed-header class="tabla-series">
+      <thead>
+        <tr>
+          <th class="text-center">
+            Nombre
+          </th>
+          <th class="text-center">
+            Imagen
+          </th>
+          <th class="text-center">
+            Progreso
+          </th>
+          <th class="text-center">
+            Calificación
+          </th>
+          <th class="text-center">
+            Estado
+          </th>
+          <th class="text-center">
+            Géneros
+          </th>
+          <th class="text-center">
+            Opción
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="serie in series" :key="serie.id">
+          <td>{{ serie.nombre }}</td>
+          <td>
+            <img class="imagen" :src="images_url + '/' + serie.imagen" />
+          </td>
+          <td>{{ 'T' + serie.ultima_temporada + ' - C' + serie.ultimo_capitulo }}</td>
+          <td>
+            <v-rating hover readonly :length="5" :size="32" :model-value="serie.calificacion" active-color="primary"
+              class="custom-rating" />
+          </td>
+          <td><b :class=serie.estado.color>{{ serie.estado.nombre }}</b></td>
+          <td>
+            <v-chip v-for="genero_chip in serie.generos" :key="genero_chip.id" class="chip-genero">
+              {{ genero_chip.nombre }}
+            </v-chip>
+          </td>
+          <td>
+            <v-btn class="boton-icono-tabla" density="compact" size="x-large"
+              :to="{ name: 'actualizarSerie', params: { id: serie.id } }"><v-icon>mdi-pencil</v-icon></v-btn>
+            <v-btn class="boton-icono-tabla" density="compact" size="x-large"
+              @click="abrirModalBorrarSerie(serie.id)"><v-icon>mdi-delete</v-icon></v-btn>
+          </td>
+        </tr>
+      </tbody>
+    </v-table>
+  </div>
+
+  <div class="paginas-series">
+    <div class="left-series">
+      Página {{ actual }} / {{ paginas }}
+    </div>
+    <div class="right-series">
+      <v-btn-toggle>
+        <v-btn @click="handleClickAnteriorTodo" :disabled="actual == 1">
+          <v-icon>mdi-arrow-collapse-left</v-icon>
+        </v-btn>
+
+        <v-btn @click="handleClickAnterior" :disabled="actual == 1">
+          <v-icon>mdi-arrow-left</v-icon>
+        </v-btn>
+
+        <v-btn @click="handleClickSiguiente" :disabled="actual == paginas">
+          <v-icon>mdi-arrow-right</v-icon>
+        </v-btn>
+
+        <v-btn @click="handleClickSiguienteTodo" :disabled="actual == paginas">
+          <v-icon>mdi-arrow-collapse-right</v-icon>
+        </v-btn>
+      </v-btn-toggle>
+    </div>
+  </div>
+
+  <v-dialog v-model="dialog_delete" max-width="800">
+
+    <v-card>
+      <v-card-title class="headline black text-center card-title" primary-title>
+        Confirmación de eliminación
+      </v-card-title>
+
+      <v-card-text class="text-center">
+        ¿ Desea borrar la serie {{ nombre }} ?
+      </v-card-text>
+
+      <v-divider></v-divider>
+
+      <v-card-actions class="center-div modal-actions">
+        <v-btn class="boton-medio" variant="elevated" color="primary" @click="confirmarBorrarSerie"
+          :disabled=isLoading><v-icon>mdi-delete</v-icon>
+          Borrar</v-btn>
+        <v-btn class="boton-medio" variant="elevated" color="primary" @click="cerrarModalBorrarSerie"
+          :disabled=isLoading><v-icon>mdi-close</v-icon> Cerrar</v-btn>
+      </v-card-actions>
+    </v-card>
+
+  </v-dialog>
+</template>
+
+<script lang="ts">
 
 import { toast } from 'vuetify-sonner';
 
@@ -8,164 +148,11 @@ import serieService from "@/services/series.service";
 import generoService from "@/services/generos.service";
 import estadosService from "@/services/estados.service";
 
-import { mdiPlus, mdiPencil, mdiDelete, mdiClose, mdiMagnify } from '@mdi/js';
-import { mdiArrowCollapseLeft, mdiArrowCollapseRight, mdiArrowLeft, mdiArrowRight } from '@mdi/js';
-
 import { generateToast } from "@/utils/functions";
 
 import { isProxy, toRaw } from 'vue';
 
 import { filterSeriesStore } from '@/stores/filterSeries';
-
-</script>
-
-<template>
-  <LayoutAdmin>
-
-    <v-btn variant="elevated" type="submit" color="primary" class="boton-largo boton-agregar-serie"
-      :to="{ name: 'guardarSerie' }"><v-icon :icon="mdiPlus" />
-      Agregar serie</v-btn>
-
-    <v-divider class="divider-series"></v-divider>
-
-    <v-row class="center-div">
-      <v-col cols="3">
-        <v-text-field v-model="buscarNombre" label="Ingrese nombre" class="filtro-nombre" />
-      </v-col>
-      <v-col cols="3">
-        <v-autocomplete clearable chips label="Géneros" v-model="generos" :items="generosLista" item-title="nombre"
-          item-value="id" multiple>
-          <template v-slot:chip="{ props, item, index }">
-            <v-chip v-if="generos.length <= 3" v-bind="props" small>
-              {{ item.title }}
-            </v-chip>
-            <span v-if="index === 1 && generos.length > 3">
-              + 3 géneros seleccionados
-            </span>
-          </template>
-        </v-autocomplete>
-      </v-col>
-      <v-col cols="2">
-        <v-select label="Estado" :items="estados" item-title='nombre' item-value='id' v-model="estado_id"></v-select>
-      </v-col>
-      <v-col cols="4" style="display: inline-block;">
-        <v-btn variant="elevated" type="submit" color="primary" class="boton-filtrar" @click="filtrarSeries"><v-icon
-            :icon="mdiMagnify" />
-          Filtrar</v-btn>
-        <v-btn variant="elevated" type="submit" color="primary" class="boton-filtrar"
-          @click="borrarFiltroSeries"><v-icon :icon="mdiClose" />
-          Borrar</v-btn>
-      </v-col>
-    </v-row>
-
-    <div class="datos-tabla-series">
-      <v-table fixed-header class="tabla-series">
-        <thead>
-          <tr>
-            <th class="text-center">
-              Nombre
-            </th>
-            <th class="text-center">
-              Imagen
-            </th>
-            <th class="text-center">
-              Progreso
-            </th>
-            <th class="text-center">
-              Calificación
-            </th>
-            <th class="text-center">
-              Estado
-            </th>
-            <th class="text-center">
-              Géneros
-            </th>
-            <th class="text-center">
-              Opción
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="serie in series" :key="serie.id">
-            <td>{{ serie.nombre }}</td>
-            <td>
-              <img class="imagen" :src="images_url + '/' + serie.imagen" />
-            </td>
-            <td>{{ 'T' + serie.ultima_temporada + ' - C' + serie.ultimo_capitulo }}</td>
-            <td>
-              <v-rating hover readonly :length="5" :size="32" :model-value="serie.calificacion"
-                active-color="primary" />
-            </td>
-            <td><b :class=serie.estado.color>{{ serie.estado.nombre }}</b></td>
-            <td>
-              <v-chip v-for="genero_chip in serie.generos" :key="genero_chip.id" class="chip-genero">
-                {{ genero_chip.nombre }}
-              </v-chip>
-            </td>
-            <td>
-              <v-btn class="boton-icono-tabla" density="compact" size="x-large" :icon="mdiPencil"
-                :to="{ name: 'actualizarSerie', params: { id: serie.id } }"></v-btn>
-              <v-btn class="boton-icono-tabla" density="compact" size="x-large" :icon="mdiDelete"
-                @click="abrirModalBorrarSerie(serie.id)"></v-btn>
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
-    </div>
-
-    <div class="paginas-series">
-      <div class="left-series">
-        Página {{ actual }} / {{ paginas }}
-      </div>
-      <div class="right-series">
-        <v-btn-toggle>
-          <v-btn @click="handleClickAnteriorTodo" :disabled="actual == 1">
-            <v-icon :icon="mdiArrowCollapseLeft" />
-          </v-btn>
-
-          <v-btn @click="handleClickAnterior" :disabled="actual == 1">
-            <v-icon :icon="mdiArrowLeft" />
-          </v-btn>
-
-          <v-btn @click="handleClickSiguiente" :disabled="actual == paginas">
-            <v-icon :icon="mdiArrowRight" />
-          </v-btn>
-
-          <v-btn @click="handleClickSiguienteTodo" :disabled="actual == paginas">
-            <v-icon :icon="mdiArrowCollapseRight" />
-          </v-btn>
-        </v-btn-toggle>
-      </div>
-    </div>
-
-    <v-dialog v-model="dialog_delete" max-width="800">
-
-      <v-card>
-        <v-card-title class="headline black text-center card-title" primary-title>
-          Confirmación de eliminación
-        </v-card-title>
-
-        <v-card-text class="text-center">
-          ¿ Desea borrar la serie {{ nombre }} ?
-        </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions class="center-div modal-actions">
-          <v-btn class="boton-medio" variant="elevated" color="primary" @click="confirmarBorrarSerie"
-            :disabled=isLoading><v-icon :icon="mdiDelete" />
-            Borrar</v-btn>
-          <v-btn class="boton-medio" variant="elevated" color="primary" @click="cerrarModalBorrarSerie"
-            :disabled=isLoading><v-icon :icon="mdiClose" /> Cerrar</v-btn>
-        </v-card-actions>
-      </v-card>
-
-    </v-dialog>
-
-  </LayoutAdmin>
-</template>
-
-<script lang="ts">
 
 interface Serie {
   id: number;

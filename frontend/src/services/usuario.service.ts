@@ -41,14 +41,13 @@ class UsuarioDataService {
             .post(backend_url + "/ingreso", parametros);
     };
 
-    validar(datos: FormValidar) {
+    async validar(datos: FormValidar) {
 
         const parametros = {
             "token": datos.token
         }
 
-        return axios
-            .post(backend_url + "/validar", parametros);
+        return axios.post(backend_url + "/validar", parametros).then(response => response).catch(err => console.log("error", err))
     };
 
     actualizarCuenta(datos: FormCuenta) {

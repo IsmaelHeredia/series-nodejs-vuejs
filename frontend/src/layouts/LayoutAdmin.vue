@@ -1,20 +1,6 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import { useTheme } from "vuetify";
-
-import { toast, VSonner } from 'vuetify-sonner';
-import 'vuetify-sonner/style.css';
-
-import { mdiWhiteBalanceSunny, mdiWeatherNight } from '@mdi/js';
-
-import { mdiHome, mdiMovie, mdiTheater, mdiAccountCircle, mdiLogout, mdiClose, mdiInformation } from '@mdi/js';
-
-import usuarioService from "@/services/usuario.service";
-
-import { generateToast } from "@/utils/functions";
-
 import { themes } from "@/stores/themes";
-import router from "@/router";
 
 const store = themes()
 
@@ -41,20 +27,20 @@ const changeTheme = () => {
         <v-menu>
           <template v-slot:activator="{ props }">
             <v-btn class="text-none" v-bind="props">
-              <v-icon :icon="mdiAccountCircle" class="icono-boton" /> {{ username }}
+              <v-icon class="icono-boton">mdi-account-circle</v-icon> {{ username }}
             </v-btn>
           </template>
           <v-list>
             <v-list-item to="/dashboard/cuenta" link>
               <v-list-item-title>Cuenta</v-list-item-title>
               <template v-slot:prepend>
-                <v-icon :icon="mdiAccountCircle" />
+                <v-icon>mdi-account-circle</v-icon>
               </template>
             </v-list-item>
             <v-list-item @click="cerrarSesion" link>
               <v-list-item-title>Salir</v-list-item-title>
               <template v-slot:prepend>
-                <v-icon :icon="mdiLogout" />
+                <v-icon>mdi-logout</v-icon>
               </template>
             </v-list-item>
           </v-list>
@@ -65,40 +51,40 @@ const changeTheme = () => {
       <v-navigation-drawer v-model="drawer" :location="$vuetify.display.mobile ? 'bottom' : undefined" temporary>
 
         <v-list density="compact" nav>
-          <v-list-item to="/dashboard" link>
+          <v-list-item to="/dashboard" exact link>
             <v-list-item-title>Inicio</v-list-item-title>
             <template v-slot:prepend>
-              <v-icon :icon="mdiHome" />
+              <v-icon>mdi-home</v-icon>
             </template>
           </v-list-item>
           <v-list-item to="/dashboard/series" link>
             <v-list-item-title>Series</v-list-item-title>
             <template v-slot:prepend>
-              <v-icon :icon="mdiMovie" />
+              <v-icon>mdi-movie</v-icon>
             </template>
           </v-list-item>
           <v-list-item to="/dashboard/generos" link>
             <v-list-item-title>Genéros</v-list-item-title>
             <template v-slot:prepend>
-              <v-icon :icon="mdiTheater" />
+              <v-icon>mdi-theater</v-icon>
             </template>
           </v-list-item>
           <v-list-item to="/dashboard/cuenta" link>
             <v-list-item-title>Cuenta</v-list-item-title>
             <template v-slot:prepend>
-              <v-icon :icon="mdiAccountCircle" />
+              <v-icon>mdi-account-circle</v-icon>
             </template>
           </v-list-item>
           <v-list-item @click="abrirModalAbout()">
             <v-list-item-title>About</v-list-item-title>
             <template v-slot:prepend>
-              <v-icon :icon="mdiInformation" />
+              <v-icon>mdi-information</v-icon>
             </template>
           </v-list-item>
           <v-list-item @click="cerrarSesion">
             <v-list-item-title>Salir</v-list-item-title>
             <template v-slot:prepend>
-              <v-icon :icon="mdiLogout" />
+              <v-icon>mdi-logout</v-icon>
             </template>
           </v-list-item>
         </v-list>
@@ -106,13 +92,13 @@ const changeTheme = () => {
       </v-navigation-drawer>
 
       <v-main style="min-height: 100vh;">
-        <slot />
+        <router-view />
       </v-main>
     </v-layout>
   </v-card>
   <div className="botones-theme">
-    <v-btn :icon="mdiWhiteBalanceSunny" @click="changeTheme()" v-if="store.mode == 2"></v-btn>
-    <v-btn :icon="mdiWeatherNight" @click="changeTheme()" v-if="store.mode == 1"></v-btn>
+    <v-btn @click="changeTheme()" v-if="store.mode == 2"><v-icon>mdi-white-balance-sunny</v-icon></v-btn>
+    <v-btn @click="changeTheme()" v-if="store.mode == 1"><v-icon>mdi-weather-night</v-icon></v-btn>
   </div>
   <v-dialog v-model="dialog_about" max-width="600">
 
@@ -130,24 +116,33 @@ const changeTheme = () => {
       <v-divider></v-divider>
 
       <v-card-actions class="center-div modal-actions">
-        <v-btn class="boton-medio" variant="elevated" color="primary" @click="cerrarModalAbout"><v-icon
-            :icon="mdiClose" /> Cerrar</v-btn>
+        <v-btn class="boton-medio" variant="elevated" color="primary"
+          @click="cerrarModalAbout"><v-icon>mdi-close</v-icon>
+          Cerrar</v-btn>
       </v-card-actions>
     </v-card>
 
   </v-dialog>
 </template>
 
-<style scoped lang="scss"></style>
-
 <script lang="ts">
+
+import { toast, VSonner } from 'vuetify-sonner';
+import 'vuetify-sonner/style.css';
+
+import usuarioService from "@/services/usuario.service";
+
+import { generateToast } from "@/utils/functions";
+
+import router from "@/router";
+
 export default {
   data: () => ({
     session_name: "",
     username: "",
     drawer: false,
     group: null,
-    dialog_about: false
+    dialog_about: false,
   }),
   watch: {
     group() {
@@ -155,15 +150,10 @@ export default {
     },
   },
   created: async function () {
-
     this.session_name = import.meta.env.VITE_SESSION_NAME;
-
     const token = sessionStorage.getItem(this.session_name);
-
-    let response = await usuarioService.validar({ "token": token });
-
+    let response: any = await usuarioService.validar({ "token": token });
     this.username = response.data.datos.username;
-    
   },
   methods: {
     async abrirModalAbout() {

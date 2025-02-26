@@ -104,52 +104,33 @@ module.exports = {
         }
     },
     async create(data) {
+        const generos = data.generos;
 
-        let transaction;
-
+        const transaction = await sequelize.transaction();
         try {
-            transaction = await sequelize.transaction();
+            const serie = await Serie.create({
+                nombre: data.nombre,
+                links: data.links,
+                ultima_temporada: data.ultima_temporada,
+                ultimo_capitulo: data.ultimo_capitulo,
+                calificacion: data.calificacion,
+                estado_id: data.estado_id,
+            }, { transaction });
 
-            const serieGuardado = await Serie.create(
-                {
-                    nombre: data.nombre,
-                    //imagen: data.imagen,
-                    links: data.links,
-                    ultima_temporada: data.ultima_temporada,
-                    ultimo_capitulo: data.ultimo_capitulo,
-                    calificacion: data.calificacion,
-                    estado_id: data.estado_id,
-                    generos: data.generos
-                },
-                {
-                    include: {
-                        model: Genero,
-                        through: SerieGeneros,
-                        as: 'generos',
-                        ignoreDuplicates: true
-                    }
-                },
-                { transaction },
-            );
-
-            await transaction.commit();
-
-            return [serieGuardado, 'La serie fue registrada correctamente', 1];
-
-        } catch (error) {
-
-            console.log(error);
-
-            if (transaction) {
-                await transaction.rollback();
+            if (generos && generos.length > 0) {
+                const serieGeneros = generos.map(idGenero => ({
+                    serie_id: serie.id,
+                    genero_id: idGenero.id,
+                }));
+                await SerieGeneros.bulkCreate(serieGeneros, { transaction });
             }
 
-            return [null, 'Ocurrió un error registrando la serie', 0];
-
-        } finally {
-            await transaction.cleanup();
+            await transaction.commit();
+            return [serie, 'La serie se creó correctamente', 1];
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
         }
-
     },
     async update(id, data) {
 
@@ -159,16 +140,9 @@ module.exports = {
             return [null, 'La serie no existe', 0];
         } else {
 
-            const generos_request = data.generos;
+            const generosLista = data.generos;
 
-            let lista_generos = [];
-
-            generos_request.forEach(async genero_request => {
-                lista_generos.push({
-                    "serie_id": id,
-                    "genero_id": genero_request.id
-                });
-            });
+            const generos = Array.from(new Set(generosLista.map(g => g.id)));
 
             let transaction = await sequelize.transaction()
 
@@ -186,14 +160,39 @@ module.exports = {
                     { where: { id: id } }, { transaction }
                 );
 
-                await SerieGeneros.destroy({
-                    where: {
-                        serie_id: id,
-                    },
+                const generosActuales = await SerieGeneros.findAll({
+                    where: { serie_id: id },
+                    attributes: ['genero_id'],
                     transaction
                 });
 
-                await SerieGeneros.bulkCreate(lista_generos, { transaction });
+                if (!Array.isArray(generosActuales)) {
+                    throw new Error("Error al obtener los géneros actuales.");
+                }
+
+                const idsGenerosActuales = new Set(generosActuales.map(g => g.genero_id));
+                const generosSet = new Set(generos);
+
+                const nuevosGeneros = [...generosSet].filter(g => !idsGenerosActuales.has(g));
+                const generosAEliminar = [...idsGenerosActuales].filter(g => !generosSet.has(g));
+
+                if (nuevosGeneros.length > 0) {
+                    const serieGeneros = nuevosGeneros.map(idGenero => ({
+                        serie_id: id,
+                        genero_id: idGenero
+                    }));
+                    await SerieGeneros.bulkCreate(serieGeneros, { transaction });
+                }
+
+                if (generosAEliminar.length > 0) {
+                    await SerieGeneros.destroy({
+                        where: {
+                            serie_id: id,
+                            genero_id: generosAEliminar
+                        },
+                        transaction
+                    });
+                }
 
                 await transaction.commit();
 

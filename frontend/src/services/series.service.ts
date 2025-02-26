@@ -12,22 +12,22 @@ interface FormSerie {
 
 const backend_url = import.meta.env.VITE_API_URL;
 const session_name = import.meta.env.VITE_SESSION_NAME;
-const token = sessionStorage.getItem(session_name);
+var token = sessionStorage.getItem(session_name);
 
 var config = {};
+var config_upload = {};
 
 if (token != null && token != "") {
     config = {
         headers: { Authorization: `Bearer ${token}` }
     };
+    config_upload = {
+        headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`
+        }
+    };
 }
-
-const config_upload = {
-    headers: {
-        "Content-Type": "multipart/form-data",
-        "Authorization": `Bearer ${token}`
-    }
-};
 
 class SerieDataService {
 

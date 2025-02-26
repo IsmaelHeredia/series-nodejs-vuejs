@@ -1,150 +1,134 @@
-<script setup lang="ts">
-
-import LayoutAdmin from "@/layouts/LayoutAdmin.vue";
-
-import { toast } from 'vuetify-sonner';
-
-import generoService from "@/services/generos.service";
-
-import { mdiPlus, mdiFloppy, mdiPencil, mdiDelete, mdiClose, mdiMagnify } from '@mdi/js';
-import { mdiArrowCollapseLeft, mdiArrowCollapseRight, mdiArrowLeft, mdiArrowRight } from '@mdi/js';
-
-import { generateToast } from "@/utils/functions";
-
-import { filterGenerosStore } from '@/stores/filterGeneros';
-
-</script>
-
 <template>
-  <LayoutAdmin>
+  <v-btn variant="elevated" type="submit" color="primary" class="boton-largo boton-agregar-genero"
+    @click="abrirModalGuardarGenero"><v-icon>mdi-plus</v-icon>
+    Agregar género</v-btn>
 
-    <v-btn variant="elevated" type="submit" color="primary" class="boton-largo boton-agregar-genero"
-      @click="abrirModalGuardarGenero"><v-icon :icon="mdiPlus" />
-      Agregar género</v-btn>
+  <v-divider class="divider-generos"></v-divider>
 
-    <v-divider class="divider-generos"></v-divider>
+  <v-row class="center-div">
+    <v-col cols="3">
+      <v-text-field v-model="buscarNombre" label="Ingrese nombre" class="filtro-nombre" />
+    </v-col>
+    <v-col cols="4" style="display: inline-block;">
+      <v-btn variant="elevated" type="submit" color="primary" class="boton-filtrar"
+        @click="filtrarGeneros"><v-icon>mdi-magnify</v-icon>
+        Filtrar</v-btn>
+      <v-btn variant="elevated" type="submit" color="primary" class="boton-filtrar"
+        @click="borrarFiltroGeneros"><v-icon>mdi-close</v-icon>
+        Borrar</v-btn>
+    </v-col>
+  </v-row>
 
-    <v-row class="center-div">
-      <v-col cols="3">
-        <v-text-field v-model="buscarNombre" label="Ingrese nombre" class="filtro-nombre" />
-      </v-col>
-      <v-col cols="4" style="display: inline-block;">
-        <v-btn variant="elevated" type="submit" color="primary" class="boton-filtrar" @click="filtrarGeneros"><v-icon
-            :icon="mdiMagnify" />
-          Filtrar</v-btn>
-        <v-btn variant="elevated" type="submit" color="primary" class="boton-filtrar"
-          @click="borrarFiltroGeneros"><v-icon :icon="mdiClose" />
-          Borrar</v-btn>
-      </v-col>
-    </v-row>
+  <div class="datos-tabla">
+    <v-table fixed-header class="tabla-generos">
+      <thead>
+        <tr>
+          <th class="text-center">
+            Nombre
+          </th>
+          <th class="text-center">
+            Opción
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="genero in generos" :key="genero.id">
+          <td>{{ genero.nombre }}</td>
+          <td>
+            <v-btn class="boton-icono-tabla" density="compact" size="x-large"
+              @click="abrirModalGuardarGenero(genero.id)"><v-icon>mdi-pencil</v-icon></v-btn>
+            <v-btn class="boton-icono-tabla" density="compact" size="x-large"
+              @click="abrirModalBorrarGenero(genero.id)"><v-icon>mdi-delete</v-icon></v-btn>
+          </td>
+        </tr>
+      </tbody>
+    </v-table>
+  </div>
 
-    <div class="datos-tabla">
-      <v-table fixed-header class="tabla-generos">
-        <thead>
-          <tr>
-            <th class="text-center">
-              Nombre
-            </th>
-            <th class="text-center">
-              Opción
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="genero in generos" :key="genero.id">
-            <td>{{ genero.nombre }}</td>
-            <td>
-              <v-btn class="boton-icono-tabla" density="compact" size="x-large" :icon="mdiPencil"
-                @click="abrirModalGuardarGenero(genero.id)"></v-btn>
-              <v-btn class="boton-icono-tabla" density="compact" size="x-large" :icon="mdiDelete"
-                @click="abrirModalBorrarGenero(genero.id)"></v-btn>
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
+  <div class="paginas-generos">
+    <div class="left-generos">
+      Página {{ actual }} / {{ paginas }}
     </div>
+    <div class="right-generos">
+      <v-btn-toggle>
+        <v-btn @click="handleClickAnteriorTodo" :disabled="actual == 1">
+          <v-icon>mdi-arrow-collapse-left</v-icon>
+        </v-btn>
 
-    <div class="paginas-generos">
-      <div class="left-generos">
-        Página {{ actual }} / {{ paginas }}
-      </div>
-      <div class="right-generos">
-        <v-btn-toggle>
-          <v-btn @click="handleClickAnteriorTodo" :disabled="actual == 1">
-            <v-icon :icon="mdiArrowCollapseLeft" />
-          </v-btn>
+        <v-btn @click="handleClickAnterior" :disabled="actual == 1">
+          <v-icon>mdi-arrow-left</v-icon>
+        </v-btn>
 
-          <v-btn @click="handleClickAnterior" :disabled="actual == 1">
-            <v-icon :icon="mdiArrowLeft" />
-          </v-btn>
+        <v-btn @click="handleClickSiguiente" :disabled="actual == paginas">
+          <v-icon>mdi-arrow-right</v-icon>
+        </v-btn>
 
-          <v-btn @click="handleClickSiguiente" :disabled="actual == paginas">
-            <v-icon :icon="mdiArrowRight" />
-          </v-btn>
-
-          <v-btn @click="handleClickSiguienteTodo" :disabled="actual == paginas">
-            <v-icon :icon="mdiArrowCollapseRight" />
-          </v-btn>
-        </v-btn-toggle>
-      </div>
+        <v-btn @click="handleClickSiguienteTodo" :disabled="actual == paginas">
+          <v-icon>mdi-arrow-collapse-right</v-icon>
+        </v-btn>
+      </v-btn-toggle>
     </div>
+  </div>
 
-    <v-dialog v-model="dialog_save" max-width="600">
+  <v-dialog v-model="dialog_save" max-width="600">
 
-      <v-form ref="formGenero" @submit.prevent="guardarGenero">
-
-        <v-card>
-          <v-card-title class="headline black text-center card-title" primary-title>
-            Gestion de género
-          </v-card-title>
-
-          <v-card-text>
-            <v-text-field label="Nombre" v-model="nombre" :rules="nombreRules"></v-text-field>
-          </v-card-text>
-
-          <v-divider></v-divider>
-
-          <v-card-actions class="center-div modal-actions">
-            <v-btn class="boton-medio" type="submit" variant="elevated" color="primary" :disabled=isLoading><v-icon
-                :icon="mdiFloppy" />
-              Guardar</v-btn>
-            <v-btn class="boton-medio" variant="elevated" color="primary" @click="cerrarModalGuardarGenero"
-              :disabled=isLoading><v-icon :icon="mdiClose" /> Cerrar</v-btn>
-          </v-card-actions>
-        </v-card>
-
-      </v-form>
-
-    </v-dialog>
-
-    <v-dialog v-model="dialog_delete" max-width="800">
+    <v-form ref="formGenero" @submit.prevent="guardarGenero">
 
       <v-card>
         <v-card-title class="headline black text-center card-title" primary-title>
-          Confirmación de eliminación
+          Gestion de género
         </v-card-title>
 
-        <v-card-text class="text-center">
-          ¿ Desea borrar el género {{ nombre }} ?
+        <v-card-text>
+          <v-text-field label="Nombre" v-model="nombre" :rules="nombreRules"></v-text-field>
         </v-card-text>
 
         <v-divider></v-divider>
 
         <v-card-actions class="center-div modal-actions">
-          <v-btn class="boton-medio" variant="elevated" color="primary" @click="confirmarBorrarGenero"
-            :disabled=isLoading><v-icon :icon="mdiDelete" />
-            Borrar</v-btn>
-          <v-btn class="boton-medio" variant="elevated" color="primary" @click="cerrarModalBorrarGenero"
-            :disabled=isLoading><v-icon :icon="mdiClose" /> Cerrar</v-btn>
+          <v-btn class="boton-medio" type="submit" variant="elevated" color="primary"
+            :disabled=isLoading><v-icon>mdi-floppy</v-icon>
+            Guardar</v-btn>
+          <v-btn class="boton-medio" variant="elevated" color="primary" @click="cerrarModalGuardarGenero"
+            :disabled=isLoading><v-icon>mdi-close</v-icon> Cerrar</v-btn>
         </v-card-actions>
       </v-card>
 
-    </v-dialog>
+    </v-form>
 
-  </LayoutAdmin>
+  </v-dialog>
+
+  <v-dialog v-model="dialog_delete" max-width="800">
+
+    <v-card>
+      <v-card-title class="headline black text-center card-title" primary-title>
+        Confirmación de eliminación
+      </v-card-title>
+
+      <v-card-text class="text-center">
+        ¿ Desea borrar el género {{ nombre }} ?
+      </v-card-text>
+
+      <v-divider></v-divider>
+
+      <v-card-actions class="center-div modal-actions">
+        <v-btn class="boton-medio" variant="elevated" color="primary" @click="confirmarBorrarGenero"
+          :disabled=isLoading><v-icon>mdi-delete</v-icon>
+          Borrar</v-btn>
+        <v-btn class="boton-medio" variant="elevated" color="primary" @click="cerrarModalBorrarGenero"
+          :disabled=isLoading><v-icon>mdi-close</v-icon> Cerrar</v-btn>
+      </v-card-actions>
+    </v-card>
+
+  </v-dialog>
 </template>
 
 <script lang="ts">
+
+import { toast } from 'vuetify-sonner';
+import generoService from "@/services/generos.service";
+import { generateToast } from "@/utils/functions";
+import { filterGenerosStore } from '@/stores/filterGeneros';
 
 interface Genero {
   id: number;

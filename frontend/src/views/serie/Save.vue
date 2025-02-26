@@ -1,10 +1,69 @@
-<script setup lang="ts">
+<template>
+  <v-btn @click="volver" variant="elevated" type="submit" color="primary"
+    class="boton-volver"><v-icon>mdi-arrow-left</v-icon>
+    Volver</v-btn>
 
-import Layout from "@/layouts/LayoutAdmin.vue";
+  <v-divider class="divider-form-serie"></v-divider>
+
+  <div class="form-serie">
+    <v-form ref="formGuardar" @submit.prevent="validarGuardar">
+      <v-card elevation="24">
+        <v-card-title class="headline black text-center card-title" primary-title>
+          Gestion de serie
+        </v-card-title>
+        <v-card-text class="pa-5">
+
+          <v-text-field label="Nombre" v-model="nombre" :rules="nombreRules"></v-text-field>
+
+          <v-row dense>
+            <v-col cols="12" md="6" sm="6">
+              <v-file-input label="Seleccione una imagen" v-model="imagen" outlined dense @change="onFileChange"
+                accept="image/png, image/jpeg, image/bmp" :rules="imagenRules"></v-file-input>
+            </v-col>
+            <v-col cols="12" md="6" sm="6">
+              <v-img class="imagen-preview" :src="imagePreview" v-if="imagePreview != null" />
+            </v-col>
+          </v-row>
+
+          <v-textarea v-model="links" class="links-form" label="Links"></v-textarea>
+
+          <v-row dense>
+            <v-col cols="12" md="4" sm="6">
+              <v-number-input v-model="ultima_temporada" label="Última temporada" :reverse="false"
+                controlVariant="default" :hideInput="false" :inset="false"></v-number-input>
+            </v-col>
+            <v-col cols="12" md="4" sm="6">
+              <v-number-input v-model="ultimo_capitulo" label="Último capítulo" :reverse="false"
+                controlVariant="default" :hideInput="false" :inset="false"></v-number-input>
+            </v-col>
+          </v-row>
+
+          <v-row dense class="form-input-calificacion">
+            <div class="text-h6 text-calificacion">Calificación</div>
+            <v-rating v-model="calificacion" :rules="calificacionRules" class="rating-form custom-rating" hover
+              :length="5" :size="32" active-color="primary" />
+          </v-row>
+
+          <v-select label="Estado" :items="estados" item-title='nombre' item-value='id' v-model="estado_id"
+            :rules="estadoRules"></v-select>
+
+          <v-autocomplete clearable chips label="Géneros" v-model="generos" :items="generosLista" item-title="nombre"
+            item-value="id" multiple :rules="generosRules"></v-autocomplete>
+
+        </v-card-text>
+        <v-card-actions class="pa-5 center-div">
+          <v-btn variant="elevated" type="submit" color="primary" class="boton-largo" :disabled=isLoading><v-icon
+              class="icono-boton">mdi-floppy</v-icon>
+            Guardar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-form>
+  </div>
+</template>
+
+<script lang="ts">
 
 import { toast } from 'vuetify-sonner'
-
-import { mdiFloppy, mdiArrowLeft } from '@mdi/js'
 
 import estadosService from "@/services/estados.service";
 import generosService from "@/services/generos.service";
@@ -15,76 +74,6 @@ import { isProxy, toRaw } from 'vue';
 import { generateToast } from "@/utils/functions";
 import router from "@/router";
 
-</script>
-
-<template>
-
-  <Layout>
-
-    <v-btn @click="volver" variant="elevated" type="submit" color="primary" class="boton-volver"><v-icon
-        :icon="mdiArrowLeft" />
-      Volver</v-btn>
-
-    <v-divider class="divider-form-serie"></v-divider>
-
-    <div class="form-serie">
-      <v-form ref="formGuardar" @submit.prevent="validarGuardar">
-        <v-card elevation="24">
-          <v-card-title class="headline black text-center card-title" primary-title>
-            Gestion de serie
-          </v-card-title>
-          <v-card-text class="pa-5">
-
-            <v-text-field label="Nombre" v-model="nombre" :rules="nombreRules"></v-text-field>
-
-            <v-row dense>
-              <v-col cols="12" md="6" sm="6">
-                <v-file-input label="Seleccione una imagen" v-model="imagen" outlined dense @change="onFileChange"
-                  accept="image/png, image/jpeg, image/bmp" :rules="imagenRules"></v-file-input>
-              </v-col>
-              <v-col cols="12" md="6" sm="6">
-                <v-img class="imagen-preview" :src="imagePreview" v-if="imagePreview != null" />
-              </v-col>
-            </v-row>
-
-            <v-textarea v-model="links" class="links-form" label="Links"></v-textarea>
-
-            <v-row dense>
-              <v-col cols="12" md="4" sm="6">
-                <v-number-input v-model="ultima_temporada" label="Última temporada" :reverse="false"
-                  controlVariant="default" :hideInput="false" :inset="false"></v-number-input>
-              </v-col>
-              <v-col cols="12" md="4" sm="6">
-                <v-number-input v-model="ultimo_capitulo" label="Último capítulo" :reverse="false"
-                  controlVariant="default" :hideInput="false" :inset="false"></v-number-input>
-              </v-col>
-            </v-row>
-
-            <v-row dense class="form-input-calificacion">
-              <div class="text-h6 text-calificacion">Calificación</div>
-              <v-rating v-model="calificacion" :rules="calificacionRules" class="rating-form" hover :length="5"
-                :size="32" active-color="primary" />
-            </v-row>
-
-            <v-select label="Estado" :items="estados" item-title='nombre' item-value='id' v-model="estado_id"
-              :rules="estadoRules"></v-select>
-
-            <v-autocomplete clearable chips label="Géneros" v-model="generos" :items="generosLista" item-title="nombre"
-              item-value="id" multiple :rules="generosRules"></v-autocomplete>
-
-          </v-card-text>
-          <v-card-actions class="pa-5 center-div">
-            <v-btn variant="elevated" type="submit" color="primary" class="boton-largo" :disabled=isLoading><v-icon
-                :icon="mdiFloppy" class="icono-boton" />
-              Guardar</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-form>
-    </div>
-  </Layout>
-</template>
-
-<script lang="ts">
 export default {
   data: () => ({
     session_name: import.meta.env.VITE_SESSION_NAME,

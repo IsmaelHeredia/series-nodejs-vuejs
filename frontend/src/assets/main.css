@@ -64,6 +64,18 @@ th {
   align-items: center !important;
 }
 
+.center-links {
+  margin: 0;
+  padding: 0;
+}
+
+.center-links a {
+  text-align: center;
+  display: block;
+  text-decoration: none;
+  margin-bottom: 5px;
+}
+
 .botones-theme {
   position: fixed;
   bottom: 0;
@@ -222,6 +234,10 @@ th {
   margin-top: 3px;
 }
 
+.custom-rating .v-icon {
+  color: #FFA500 !important;
+}
+
 .imagen-preview {
   height: 200px;
   width: 200px;
@@ -236,6 +252,23 @@ th {
   margin-top: 20px;
   height: calc(100vh - 320px);
   overflow: auto;
+}
+
+.imagen-portada {
+  object-fit: contain;
+  max-width: 100%;
+  height: auto;
+}
+
+.imagen-portada-dialog {
+  width: 100%; 
+  height: auto;
+  max-height: 400px;
+  object-fit: contain;
+}
+
+.custom-rating .v-icon {
+  color: #FFA500 !important;
 }
 
 .divider-home {

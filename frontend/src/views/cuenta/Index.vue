@@ -1,47 +1,37 @@
-<script setup lang="ts">
+<template>
+    <div class="cuenta">
+        <v-form ref="formCuenta" @submit.prevent="validarCuenta">
+            <v-card elevation="24">
+                <v-card-title class="headline black text-center card-title" primary-title>
+                    Actualizar datos de cuenta
+                </v-card-title>
+                <v-card-text class="pa-5">
+                    <v-text-field label="Usuario" v-model="usuario" :rules="usuarioRules" readonly></v-text-field>
+                    <v-text-field label="Nuevo usuario" v-model="nuevo_usuario"
+                        :rules="nuevoUsuarioRules"></v-text-field>
+                    <v-text-field type="password" label="Clave" v-model="clave" :rules="claveRules"></v-text-field>
+                    <v-text-field type="password" label="Nueva clave" v-model="nueva_clave"
+                        :rules="nuevaClaveRules"></v-text-field>
+                </v-card-text>
+                <v-card-actions class="pa-5 center-div">
+                    <v-btn variant="elevated" type="submit" color="primary" class="boton-largo"
+                        :disabled=isLoading><v-icon class="icono-boton">mdi-floppy</v-icon>
+                        Guardar</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-form>
+    </div>
+</template>
 
-import Layout from "@/layouts/LayoutAdmin.vue";
+<script lang="ts">
 
 import { toast } from 'vuetify-sonner';
-
-import { mdiFloppy } from '@mdi/js'
 
 import usuarioService from "@/services/usuario.service";
 
 import { generateToast } from "@/utils/functions";
 import router from "@/router";
 
-</script>
-
-<template>
-
-    <Layout>
-        <div class="cuenta">
-            <v-form ref="formCuenta" @submit.prevent="validarCuenta">
-                <v-card elevation="24">
-                    <v-card-title class="headline black text-center card-title" primary-title>
-                        Actualizar datos de cuenta
-                    </v-card-title>
-                    <v-card-text class="pa-5">
-                        <v-text-field label="Usuario" v-model="usuario" :rules="usuarioRules" readonly></v-text-field>
-                        <v-text-field label="Nuevo usuario" v-model="nuevo_usuario"
-                            :rules="nuevoUsuarioRules"></v-text-field>
-                        <v-text-field type="password" label="Clave" v-model="clave" :rules="claveRules"></v-text-field>
-                        <v-text-field type="password" label="Nueva clave" v-model="nueva_clave"
-                            :rules="nuevaClaveRules"></v-text-field>
-                    </v-card-text>
-                    <v-card-actions class="pa-5 center-div">
-                        <v-btn variant="elevated" type="submit" color="primary" class="boton-largo"
-                            :disabled=isLoading><v-icon :icon="mdiFloppy" class="icono-boton" />
-                            Guardar</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-form>
-        </div>
-    </Layout>
-</template>
-
-<script lang="ts">
 export default {
     data: () => ({
         session_name: import.meta.env.VITE_SESSION_NAME,
@@ -81,7 +71,7 @@ export default {
 
         const token = sessionStorage.getItem(this.session_name);
 
-        let response = await usuarioService.validar({ "token": token });
+        let response: any = await usuarioService.validar({ "token": token });
 
         this.usuario = response.data.datos.username;
 

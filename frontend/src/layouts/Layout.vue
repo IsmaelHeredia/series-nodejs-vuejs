@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import { useTheme } from "vuetify";
 
 import { VSonner } from 'vuetify-sonner';
 import 'vuetify-sonner/style.css';
-
-import { mdiWhiteBalanceSunny, mdiWeatherNight } from '@mdi/js';
 
 import { themes } from "@/stores/themes";
 
@@ -25,11 +22,11 @@ const changeTheme = () => {
 
   <v-container class="fill-height">
     <v-responsive class="d-flex align-center text-center fill-height">
-      <slot />
+      <router-view />
     </v-responsive>
     <div className="botones-theme">
-      <v-btn :icon="mdiWhiteBalanceSunny" @click="changeTheme()" v-if="store.mode == 2"></v-btn>
-      <v-btn :icon="mdiWeatherNight" @click="changeTheme()" v-if="store.mode == 1"></v-btn>
+      <v-btn @click="changeTheme()" v-if="store.mode == 2"><v-icon>mdi-white-balance-sunny</v-icon></v-btn>
+      <v-btn @click="changeTheme()" v-if="store.mode == 1"><v-icon>mdi-weather-night</v-icon></v-btn>
     </div>
 
   </v-container>

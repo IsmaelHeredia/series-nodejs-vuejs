@@ -16,7 +16,7 @@ import { VNumberInput } from 'vuetify/labs/VNumberInput';
 
 import '@mdi/font/css/materialdesignicons.css';
 
-import { aliases, mdi } from 'vuetify/iconsets/mdi-svg';
+import { aliases, mdi } from 'vuetify/iconsets/mdi'
 
 const customDarkTheme = {
     dark: true,
@@ -46,7 +46,7 @@ const vuetify = createVuetify({
     components: {
         ...components_vuetify,
         VNumberInput,
-      },
+    },
     directives,
 });
 
