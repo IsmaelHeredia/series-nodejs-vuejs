@@ -157,7 +157,7 @@ module.exports = {
                         calificacion: data.calificacion,
                         estado_id: data.estado_id
                     },
-                    { where: { id: id } }, { transaction }
+                    { where: { id: id }, transaction }
                 );
 
                 const generosActuales = await SerieGeneros.findAll({
@@ -170,7 +170,7 @@ module.exports = {
                     throw new Error("Error al obtener los géneros actuales.");
                 }
 
-                const idsGenerosActuales = new Set(generosActuales.map(g => g.genero_id));
+                const idsGenerosActuales = new Set(generosActuales.map(g => parseInt(g.genero_id, 10)));
                 const generosSet = new Set(generos);
 
                 const nuevosGeneros = [...generosSet].filter(g => !idsGenerosActuales.has(g));
@@ -181,7 +181,10 @@ module.exports = {
                         serie_id: id,
                         genero_id: idGenero
                     }));
-                    await SerieGeneros.bulkCreate(serieGeneros, { transaction });
+                    await SerieGeneros.bulkCreate(serieGeneros, {
+                        transaction,
+                        returning: true
+                    });
                 }
 
                 if (generosAEliminar.length > 0) {
@@ -210,113 +213,92 @@ module.exports = {
         }
     },
     async delete(id) {
-
         const datos = await Serie.findByPk(id);
 
         if (!datos) {
             return [null, 'La serie no existe', 0];
-        } else {
+        }
 
-            let transaction;
+        let transaction;
+        try {
+            transaction = await sequelize.transaction();
 
-            try {
+            const image = datos.imagen;
+            const upload_folder = path.join(__dirname, '../uploads');
 
-                transaction = await sequelize.transaction();
+            await Serie.destroy({
+                where: { id: id },
+                transaction
+            });
 
-                const image = datos.imagen;
+            await transaction.commit();
 
-                const upload_folder = path.join(__dirname, '../uploads');
-
-                if (image != null && image != "") {
-                    fs.unlinkSync(upload_folder + "/" + image);
-                }
-
-                await Serie.destroy({
-                    where: {
-                        id: id,
-                    },
-                    transaction
-                });
-
-                await transaction.commit();
-
-                return [null, 'La serie fue borrada correctamente', 1];
-
-            } catch (error) {
-
-                console.log(error);
-
-                if (transaction) {
-                    await transaction.rollback();
-                }
-
-                return [null, 'Ocurrió un error borrando la serie', 0];
-
-            } finally {
-                await transaction.cleanup();
+            if (image && fs.existsSync(path.join(upload_folder, image))) {
+                fs.unlinkSync(path.join(upload_folder, image));
             }
 
+            return [null, 'La serie fue borrada correctamente', 1];
+
+        } catch (error) {
+            console.error("Error al borrar la serie:", error);
+
+            if (transaction) {
+                await transaction.rollback();
+            }
+
+            return [null, 'Ocurrió un error borrando la serie', 0];
         }
 
     },
     async upload_image(id, imageUpload) {
-
-        const datos_serie = await Serie.findByPk(id, {});
+        const datos_serie = await Serie.findByPk(id);
 
         if (!datos_serie) {
             return [null, 'La serie no existe', 0];
-        } else {
+        }
 
-            let transaction;
+        let transaction;
+        try {
+            transaction = await sequelize.transaction();
 
-            try {
-                transaction = await sequelize.transaction();
+            const upload_folder = path.join(__dirname, '../uploads');
+            const image = datos_serie.imagen;
 
-                const image = datos_serie.imagen;
-
-                const upload_folder = path.join(__dirname, '../uploads');
-
-                if (image != null && image != "") {
-                    fs.unlinkSync(upload_folder + "/" + image);
-                }
-
-                var ext = imageUpload.originalFilename.split('.').pop();
-
-                const uuid = uuidv4();
-
-                const newName = uuid + '.' + ext;
-
-                let oldPath = imageUpload.filepath;
-
-                let newPath = upload_folder + '/' + newName;
-
-                let rawData = fs.readFileSync(oldPath);
-
-                fs.writeFileSync(newPath, rawData);
-
-                await Serie.update(
-                    {
-                        imagen: newName,
-                    },
-                    { where: { id: id } }, { transaction }
-                );
-
-                return [null, 'La imagen se subió al servidor correctamente', 1];
-
-            } catch (error) {
-
-                console.log(error);
-
-                if (transaction) {
-                    await transaction.rollback();
-                }
-
-                return [null, 'Ocurrió un error subiendo la imagen', 0];
-
-            } finally {
-                await transaction.cleanup();
+            if (image && fs.existsSync(upload_folder + "/" + image)) {
+                fs.unlinkSync(upload_folder + "/" + image);
             }
 
+            if (!imageUpload.originalFilename.includes(".")) {
+                throw new Error("El archivo no tiene una extensión válida");
+            }
+
+            const ext = imageUpload.originalFilename.split('.').pop();
+            const uuid = uuidv4();
+            const newName = uuid + '.' + ext;
+
+            const oldPath = imageUpload.filepath;
+            const newPath = path.join(upload_folder, newName);
+
+            const rawData = fs.readFileSync(oldPath);
+            fs.writeFileSync(newPath, rawData);
+
+            await Serie.update(
+                { imagen: newName },
+                { where: { id: id }, transaction }
+            );
+
+            await transaction.commit();
+
+            return [null, 'La imagen se subió al servidor correctamente', 1];
+
+        } catch (error) {
+            console.error("Error al subir la imagen:", error);
+
+            if (transaction) {
+                await transaction.rollback();
+            }
+
+            return [null, 'Ocurrió un error subiendo la imagen', 0];
         }
     }
 }

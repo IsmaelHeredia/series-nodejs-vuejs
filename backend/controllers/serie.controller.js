@@ -370,43 +370,42 @@ router.delete("/:id", validateAuth, async function (req, res) {
      *        description: Server Error
  */
 router.post("/:id/subirImagen", validateAuth, async function (req, res) {
-
-    var id = req.params.id;
+    const id = req.params.id;
 
     if (!functions.isNumber(id)) {
-        const respuesta = responses.send_error();
-        return res.json(respuesta);
+        return res.json(responses.send_error());
     }
 
     const form = new formidable.IncomingForm();
 
     form.parse(req, async function (err, fields, files) {
 
-        console.log('files', files);
+        if (err) {
+            return res.json(responses.send_warning("Error al procesar la imagen"));
+        }
+
+        if (!files.imagen || files.imagen.length === 0) {
+            return res.json(responses.send_warning("No se ha enviado una imagen válida"));
+        }
 
         const imageUpload = files.imagen[0];
-        const originalFilename = imageUpload.originalFilename;
-        const mimetype = imageUpload.mimetype;
 
-        console.log(imageUpload);
-        console.log(originalFilename);
-        console.log(mimetype);
+        if (!imageUpload || !imageUpload.originalFilename) {
+            return res.json(responses.send_warning("El archivo no tiene un nombre válido"));
+        }
 
-        if (functions.isImage(originalFilename, mimetype)) {
-            const [datos, mensaje, estado] = await serieService.upload_image(id, imageUpload);
-            if (estado == 1) {
-                const respuesta = responses.send_success(mensaje);
-                res.json(respuesta);
-            } else {
-                const respuesta = responses.send_warning(mensaje);
-                res.json(respuesta);
-            }
+        if (!functions.isImage(imageUpload.originalFilename, imageUpload.mimetype)) {
+            return res.json(responses.send_warning("El archivo no es una imagen válida"));
+        }
+
+        const [datos, mensaje, estado] = await serieService.upload_image(id, imageUpload);
+
+        if (estado === 1) {
+            res.json(responses.send_success(mensaje));
         } else {
-            const respuesta = responses.send_warning(mensaje);
-            res.json(respuesta);
+            res.json(responses.send_warning(mensaje));
         }
     });
-
 });
 
 module.exports = router;
