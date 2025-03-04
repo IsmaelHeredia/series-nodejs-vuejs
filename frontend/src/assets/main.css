@@ -85,7 +85,27 @@ th {
 }
 
 .toast {
-  text-align: center;
+  border-radius: 12px !important;
+  font-weight: bold !important;
+  font-size: 1.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 60px !important;
+  padding: 15px 30px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  max-width: fit-content !important;
+}
+
+.toast .v-card__text {
+  font-size: 1.5rem !important;
+  font-weight: bold !important;
+  width: auto !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 .boton-agregar-genero {
